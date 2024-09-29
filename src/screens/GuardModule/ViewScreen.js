@@ -46,7 +46,7 @@ export default function ViewScreen() {
           <Text style={styles.buttonText}>View</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Mark</Text>
+          <Text style={styles.buttonText}>In/Out</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Remark</Text>

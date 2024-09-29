@@ -9,6 +9,8 @@ export default function RegisterForm() {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [rate, setRate] = useState('');
+  const [age, setAge] = useState('');
+  const [salary, setSalary] = useState('');
   const [imageUri, setImageUri] = useState(null); // State to store the image URI
 
   // Dummy Avatar
@@ -76,6 +78,29 @@ export default function RegisterForm() {
         />
       </View>
 
+      {/* Mobile */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>AGE</Text>
+        <TextInput
+          style={styles.input}
+          value={age}
+          onChangeText={setAge}
+          placeholder=""
+          keyboardType="phone-pad"
+        />
+      </View>
+      {/* Mobile */}
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>SALARY</Text>
+        <TextInput
+          style={styles.input}
+          value={salary}
+          onChangeText={setSalary}
+          placeholder=""
+          keyboardType="phone-pad"
+        />
+      </View>
+
       {/* Rate */}
       <View style={styles.inputContainer}>
         <Text style={styles.label}>RATE</Text>
@@ -118,6 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     margin: 20,
+    marginTop:0
   },
   inputContainer: {
     flexDirection: 'row',
