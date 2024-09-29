@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React from 'react';
 import Navbar from '../components/Navbar';
 import { BLUE, SKIN } from '../../styles/colors';
@@ -39,6 +39,19 @@ export default function ViewScreen() {
           </View>
         )}
       />
+
+      {/* Bottom Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>View</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Mark</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Remark</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -72,7 +85,7 @@ const styles = StyleSheet.create({
   },
   departmentRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // This will align the text to the left and right
+    justifyContent: 'space-between', // Align department name to left and count to right
   },
   departmentText: {
     fontSize: 18,
@@ -82,5 +95,33 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 18,
     color: '#333',
+  },
+
+  // Button Styles
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    position: 'absolute',
+    bottom: 20, // Keeps the buttons at the bottom
+    left: 20,
+    right: 20,
+  },
+  button: {
+    flex: 1,
+    backgroundColor: BLUE, // Button background color
+    padding: 8,
+    marginHorizontal: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
