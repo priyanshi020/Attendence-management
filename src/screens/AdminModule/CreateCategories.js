@@ -2,34 +2,38 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, Image, Alert } fro
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import { height, marginLeftAndRight, width } from '../../styles/mixins';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { PURPLE, RED, SKIN } from '../../styles/colors';
 import axios from 'axios';
-import Instance from '../../ServiceModule/Service'
-export default function CreateDepartment() {
-    const [departmentName, setDepartmentName] = useState(''); // State for department name
+import Instance from '../../ServiceModule/Service';
+
+export default function CreateCategory() {
+    const [categoryName, setCategoryName] = useState(''); // State for category name
     const [loading, setLoading] = useState(false); // Loading state
     const navigation = useNavigation();
-
+    const route=useRoute()
+    const { departmentId,departmentName } = route.params;
+    console.log('department',departmentId)
     const handleCreate = async () => {
-        if (!departmentName.trim()) {
-            Alert.alert('Error', 'Please enter a department name');
+        if (!categoryName.trim()) {
+            Alert.alert('Error', 'Please enter a category name');
             return;
         }
 
         setLoading(true);
         try {
-            // Send POST request to create department
-            const response = await Instance.post('department/createDepartment', {
-                departmentName: departmentName,
+            // Send POST request to create category
+            const response = await Instance.post('category/createCategories', {
+                categoryName: categoryName,
+                departmentId: departmentId
             });
 
             // Handle success
-            Alert.alert('Success', 'Department created successfully');
-            navigation.navigate('Department'); // Navigate to Categories screen after success
+            Alert.alert('Success', 'Category created successfully');
+            navigation.navigate('Categories',{departmentId:departmentId,departmentName:departmentName}); // Navigate to Categories screen after success
         } catch (error) {
             // Handle error
-            Alert.alert('Error', 'Failed to create department');
+            Alert.alert('Error', 'Failed to create category');
             console.error(error);
         } finally {
             setLoading(false);
@@ -45,9 +49,9 @@ export default function CreateDepartment() {
                 <Text style={styles.label}> Name</Text>
                 <TextInput
                     style={styles.input}
-                    value={departmentName}
-                    onChangeText={setDepartmentName} // Update department name on input change
-                    placeholder="Enter department name"
+                    value={categoryName}
+                    onChangeText={setCategoryName} // Update category name on input change
+                    placeholder="Enter category name"
                 />
             </View>
 
@@ -58,7 +62,7 @@ export default function CreateDepartment() {
                 </Text>
             </TouchableOpacity>
 
-            {/* Plus Icon */}
+            {/* Plus Icon (Optional, can be removed) */}
             <TouchableOpacity style={styles.plusButton}>
                 <Image
                     style={styles.image}

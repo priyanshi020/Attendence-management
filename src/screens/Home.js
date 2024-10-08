@@ -1,21 +1,69 @@
-import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native';
-import React from 'react';
-import { height, marginLeftAndRight, width } from '../styles/mixins';
-import Navbar from './components/Navbar';
+import React, { useState } from 'react';
+import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Navbar from './components/Navbar';
 import { PINK, RED } from '../styles/colors';
+import { height, marginLeftAndRight, width } from '../styles/mixins';
+import axios from 'axios'; // Import axios
+import Instance from '../ServiceModule/Service'
+
+
+
 
 export default function Home() {
-  const navigation = useNavigation(); // Initialize navigation
+  const navigation = useNavigation();
 
-  const handleLogin = () => {
-    // navigation.navigate('Department'); 
-    navigation.navigate('ViewScreen')
+  // State for User ID and Password
+  const [userId, setUserId] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    console.log('this is usrID : ', userId, password)
+    if (!userId || !password) {
+      Alert.alert('Error', 'Please enter both User ID and Password');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log('helo')
+      const response = await Instance.post('users/login', {
+        email: userId,
+        password: password,
+      })
+
+      console.log(response.status, response)
+
+
+      if (response.status === 200) {
+        if (response.data.user.roleId === 1) {
+          navigation.navigate('Department');
+        } else if (response.data.user.roleId === 2) {
+          navigation.navigate('ViewScreen')
+        }
+      } else {
+
+        Alert.alert('Login Failed', response.data.message || 'Invalid User ID or Password');
+      }
+    } catch (error) {
+      // Handle unexpected errors
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        Alert.alert('Login Failed', error.response.data.message || 'Invalid User ID or Password');
+      } else {
+        // Network error or something else
+        Alert.alert('Error', 'Something went wrong. Please try again later.');
+      }
+    } finally {
+      setLoading(false);  // Set loading to false after the login attempt
+    }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Logo */}
-      <Navbar/>
+      <Navbar />
 
       {/* Profile Image inside a Circle */}
       <View style={styles.profileImageContainer}>
@@ -32,6 +80,8 @@ export default function Home() {
         placeholder="USER ID"
         placeholderTextColor="black"
         textAlign="center"
+        value={userId} // Controlled input for user ID
+        onChangeText={txt => setUserId(txt)}
       />
       <TextInput
         style={styles.input}
@@ -39,13 +89,19 @@ export default function Home() {
         placeholderTextColor="black"
         secureTextEntry
         textAlign="center"
+        value={password} // Controlled input for password
+        onChangeText={txt => setPassword(txt)}
       />
 
       {/* Login Button */}
-      <TouchableOpacity style={styles.loginButton}                 
-      onPress={handleLogin}
->
-        <Text style={styles.loginButtonText}>Login</Text>
+      <TouchableOpacity
+        style={styles.loginButton}
+        onPress={handleLogin}
+        disabled={loading} // Disable the button while loading
+      >
+        <Text style={styles.loginButtonText}>
+          {loading ? 'Logging in...' : 'Login'}
+        </Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -58,7 +114,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
- 
   profileImageContainer: {
     width: width(0.5),
     height: width(0.5),
@@ -73,12 +128,11 @@ const styles = StyleSheet.create({
   profileImage: {
     width: '100%',
     height: '100%',
-
   },
   input: {
     width: width(0.7),
     height: 50,
-    backgroundColor: PINK, 
+    backgroundColor: PINK,
     paddingHorizontal: 15,
     marginTop: 30,
     borderWidth: 3, // Black border
@@ -93,10 +147,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     marginTop: 100,
-    marginBottom:150,
+    marginBottom: 150,
     borderWidth: 3, // Black border
     borderColor: 'black',
-    
   },
   loginButtonText: {
     color: '#fff',
