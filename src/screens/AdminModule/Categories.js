@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import { height, marginLeftAndRight, width } from '../../styles/mixins';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Instance from '../../ServiceModule/Service'; // Ensure you have the correct import for your API instance
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Categories() {
     const [categories, setCategories] = useState([]); // State to hold categories
@@ -16,22 +17,41 @@ export default function Categories() {
     console.log('------d-------', departmentId + departmentName);
 
     // Fetch categories based on department ID
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await Instance.get(`category/getAllCategories?departmentId=${departmentId}`);
-                setCategories(response.data);
-                console.log('response', response.data); // Log the fetched categories
-            } catch (error) {
-                setError('Failed to load categories');
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // useEffect(() => {
+    //     const fetchCategories = async () => {
+    //         try {
+    //             const response = await Instance.get(`category/getAllCategories?departmentId=${departmentId}`);
+    //             setCategories(response.data);
+    //             console.log('response', response.data); // Log the fetched categories
+    //         } catch (error) {
+    //             setError('Failed to load categories');
+    //             console.error(error);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
 
-        fetchCategories();
-    }, [departmentId]);
+    //     fetchCategories();
+    // }, [departmentId]);
+    useFocusEffect(
+        React.useCallback(()=>{
+            const fetchCategories=async () =>{
+                try{
+                    setLoading(true);
+                    const response = await Instance.get(`category/getAllCategories?departmentId=${departmentId}`)
+                    setCategories(response.data)
+                }catch(error){
+                    setError('Failed to load categories')
+                }finally{
+                    setLoading(false)
+                }
+            }
+            fetchCategories()
+            return () =>{
+
+            }
+        },[])
+    )
 
     const handleCreate = () => {
         navigation.navigate('CreateCategory', { departmentId: departmentId, departmentName: departmentName }); // Navigate to CreateCategory
