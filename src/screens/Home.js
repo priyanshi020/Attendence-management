@@ -1,53 +1,65 @@
-import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform } from 'react-native';
+import {
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Platform,
+  KeyboardAvoidingView,
+} from 'react-native';
 import React from 'react';
-import { height, marginLeftAndRight, width } from '../styles/mixins';
+import {height, marginLeftAndRight, width} from '../styles/mixins';
 import Navbar from './components/Navbar';
-import { useNavigation } from '@react-navigation/native';
-import { PINK, RED } from '../styles/colors';
+import {useNavigation} from '@react-navigation/native';
+import {PINK, RED} from '../styles/colors';
 
 export default function Home() {
-  const navigation = useNavigation(); // Initialize navigation
+  const navigation = useNavigation();
 
   const handleLogin = () => {
-    // navigation.navigate('Department'); 
-    navigation.navigate('ViewScreen')
+    navigation.navigate('Department');
+    console.log('objecnnnnnnnnsst');
   };
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Logo */}
-      <Navbar/>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{flex: 1}}>
+      <SafeAreaView style={styles.container}>
+        {/* Logo */}
+        <Navbar />
 
-      {/* Profile Image inside a Circle */}
-      <View style={styles.profileImageContainer}>
-        <Image
-          style={styles.profileImage}
-          resizeMode="cover"
-          source={require('../Images/maleAvatar.jpg')} // Replace with your profile image
+        {/* Profile Image inside a Circle */}
+        <View style={styles.profileImageContainer}>
+          <Image
+            style={styles.profileImage}
+            resizeMode="cover"
+            source={require('../Images/maleAvatar.jpg')}
+          />
+        </View>
+
+        {/* Input Fields */}
+        <TextInput
+          style={styles.input}
+          placeholder="USER ID"
+          placeholderTextColor="black"
+          textAlign="center"
         />
-      </View>
+        <TextInput
+          style={styles.input}
+          placeholder="PASSWORD"
+          placeholderTextColor="black"
+          secureTextEntry
+          textAlign="center"
+        />
 
-      {/* Input Fields */}
-      <TextInput
-        style={styles.input}
-        placeholder="USER ID"
-        placeholderTextColor="black"
-        textAlign="center"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="PASSWORD"
-        placeholderTextColor="black"
-        secureTextEntry
-        textAlign="center"
-      />
-
-      {/* Login Button */}
-      <TouchableOpacity style={styles.loginButton}                 
-      onPress={handleLogin}
->
-        <Text style={styles.loginButtonText}>Login</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        {/* Login Button */}
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.loginButtonText}>Login</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -58,7 +70,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
- 
+
   profileImageContainer: {
     width: width(0.5),
     height: width(0.5),
@@ -73,12 +85,11 @@ const styles = StyleSheet.create({
   profileImage: {
     width: '100%',
     height: '100%',
-
   },
   input: {
     width: width(0.7),
     height: 50,
-    backgroundColor: PINK, 
+    backgroundColor: PINK,
     paddingHorizontal: 15,
     marginTop: 30,
     borderWidth: 3, // Black border
@@ -93,10 +104,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     marginTop: 100,
-    marginBottom:150,
+    marginBottom: 150,
     borderWidth: 3, // Black border
     borderColor: 'black',
-    
   },
   loginButtonText: {
     color: '#fff',
