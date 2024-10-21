@@ -1,34 +1,61 @@
-import {
-  Image,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Platform,
-  KeyboardAvoidingView,
-} from 'react-native';
-import React from 'react';
-import {height, marginLeftAndRight, width} from '../styles/mixins';
+import React, { useState } from 'react';
+import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Navbar from './components/Navbar';
-import {useNavigation} from '@react-navigation/native';
-import {PINK, RED} from '../styles/colors';
+import { PINK, RED } from '../styles/colors';
+import { height, marginLeftAndRight, width } from '../styles/mixins';
+import Instance from '../ServiceModule/Service'
 
 export default function Home() {
   const navigation = useNavigation();
 
-  const handleLogin = () => {
-    navigation.navigate('Department');
-    console.log('objecnnnnnnnnsst');
+  // State for User ID and Password
+  const [userId, setUserId] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    navigation.navigate('RegisterScreen')
+
+
+    // console.log('this is usrID : ', userId, password)
+    // if (!userId || !password) {
+    //   Alert.alert('Error', 'Please enter both User ID and Password');
+    //   setLoading(false);
+    //   return;
+    // }
+
+    // try {
+    //   console.log('helo')
+    //   const response = await Instance.post('users/login', {
+    //     email: userId,
+    //     password: password,
+    //   })
+
+    //   if (response.status === 200) {
+    //     if (response.data.user.roleId === 1) {
+    //       navigation.navigate('Department');
+    //     } else if (response.data.user.roleId === 2) {
+    //       navigation.navigate('ViewScreen')
+    //     }
+    //   } else {
+    //     Alert.alert('Login Failed', response.data.message || 'Invalid User ID or Password');
+    //   }
+    // } catch (error) {
+    //   if (error.response) {
+    //     Alert.alert('Login Failed', error.response.data.message || 'Invalid User ID or Password');
+    //   } else {
+    //     Alert.alert('Error', 'Something went wrong. Please try again later.');
+    //   }
+    // } finally {
+    //   setLoading(false); 
+    // }
   };
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{flex: 1}}>
-      <SafeAreaView style={styles.container}>
-        {/* Logo */}
-        <Navbar />
+    <SafeAreaView style={styles.container}>
+      {/* Logo */}
+      <Navbar />
 
         {/* Profile Image inside a Circle */}
         <View style={styles.profileImageContainer}>
@@ -39,27 +66,36 @@ export default function Home() {
           />
         </View>
 
-        {/* Input Fields */}
-        <TextInput
-          style={styles.input}
-          placeholder="USER ID"
-          placeholderTextColor="black"
-          textAlign="center"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="PASSWORD"
-          placeholderTextColor="black"
-          secureTextEntry
-          textAlign="center"
-        />
+      {/* Input Fields */}
+      <TextInput
+        style={styles.input}
+        placeholder="USER ID"
+        placeholderTextColor="black"
+        textAlign="center"
+        value={userId} 
+        onChangeText={txt => setUserId(txt)}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="PASSWORD"
+        placeholderTextColor="black"
+        secureTextEntry
+        textAlign="center"
+        value={password} 
+        onChangeText={txt => setPassword(txt)}
+      />
 
-        {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+      {/* Login Button */}
+      <TouchableOpacity
+        style={styles.loginButton}
+        onPress={handleLogin}
+        disabled={loading}
+      >
+        <Text style={styles.loginButtonText}>
+          {loading ? 'Logging in...' : 'Login'}
+        </Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
 
@@ -70,7 +106,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
   profileImageContainer: {
     width: width(0.5),
     height: width(0.5),
@@ -92,14 +127,14 @@ const styles = StyleSheet.create({
     backgroundColor: PINK,
     paddingHorizontal: 15,
     marginTop: 30,
-    borderWidth: 3, // Black border
+    borderWidth: 3, 
     borderColor: 'black',
     color: 'black',
   },
   loginButton: {
     width: width(0.24),
     height: 50,
-    backgroundColor: RED, // Red background for login button
+    backgroundColor: RED, 
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,

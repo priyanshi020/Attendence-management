@@ -1,4 +1,4 @@
-package com.tufcon
+package com.anonymous.tufcon
 
 import android.app.Application
 import com.facebook.react.PackageList

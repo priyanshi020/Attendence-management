@@ -1,4 +1,23 @@
 {
   "name": "Tufcon",
-  "displayName": "Tufcon"
+  "displayName": "Tufcon",
+  "plugins": [
+    [
+      "expo-camera",
+      {
+        "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
+      }
+    ]
+  ],
+  "android": {
+    "permissions": [
+      "android.permission.CAMERA"
+    ],
+    "package": "com.anonymous.tufcon"
+  },
+  "extra": {
+    "eas": {
+      "projectId": "36ac94b5-1899-4737-addc-cd1ca0fba573"
+    }
+  }
 }

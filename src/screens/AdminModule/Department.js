@@ -1,26 +1,80 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { height, marginLeftAndRight, width } from '../../styles/mixins';
 import { useNavigation } from '@react-navigation/native';
 import { BLUE, PURPLE, RED, SKIN } from '../../styles/colors';
-// Sample JSON data for departments
-const departments = [
-    { id: '1', name: 'CIVIL' },
-    { id: '2', name: 'MILL' },
-    { id: '3', name: 'LABOUR' },
-    { id: '4', name: 'KITCHEN' },
-    { id: '5', name: 'PRINTING HOUSE' },
-];
-
+import Instance from '../../ServiceModule/Service'
+import { useFocusEffect } from '@react-navigation/native';
 export default function Department() {
-    const navigation = useNavigation()
+    const [departments, setDepartments] = useState([]); // State for storing departments
+    const [loading, setLoading] = useState(true); // Loading state
+    const [error, setError] = useState(null); // Error state
+    const navigation = useNavigation();
+
+    // Fetch departments from API
+    // useEffect(() => {
+    //     const fetchDepartments = async () => {
+    //         try {
+    //             const response = await Instance.get('department/getDepartments'); // Update with your API endpoint
+    //             setDepartments(response.data);
+    //             console.log('---------------',departments)
+    //         } catch (err) {
+    //             setError('Failed to load departments');
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+    //     fetchDepartments();
+    // }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            // Function to fetch all departments
+            const fetchDepartments = async () => {
+                try {
+                    setLoading(true);
+                    const response = await Instance.get('department/getDepartments');
+                    setDepartments(response.data);
+                } catch (error) {
+                    Alert.alert('Error', 'Failed to fetch departments');
+                    console.error(error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchDepartments(); // Call the function when screen is focused
+
+            return () => {
+                // Cleanup if needed
+            };
+        }, [])
+    );
+
     const handleCreate = () => {
-        navigation.navigate('CreateDepartment'); // Navigate to Department screen
+        navigation.navigate('CreateDepartment'); // Navigate to Create Department screen
     };
-    const handleReport = () =>{
-        navigation.navigate('ViewReport')
+
+    const handleReport = () => {
+        navigation.navigate('ViewReport'); // Navigate to View Report screen
+    };
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color={BLUE} />
+            </View>
+        );
     }
+
+    if (error) {
+        return (
+            <View style={styles.container}>
+                <Text style={{ color: 'red', fontSize: 18 }}>{error}</Text>
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
             <Navbar />
@@ -30,9 +84,13 @@ export default function Department() {
                     data={departments}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
-                        <View style={styles.departmentItem}>
-                            <Text style={styles.departmentText}>{item.name}</Text>
-                        </View>
+                        <TouchableOpacity
+                            style={styles.departmentItem}
+                            
+                            onPress={() => navigation.navigate('Categories', { departmentId: item._id,departmentName:item.departmentName })} // Pass departmentId here
+                        >
+                            <Text style={styles.departmentText}>{item.departmentName}</Text>
+                        </TouchableOpacity>
                     )}
                 />
             </View>
@@ -41,9 +99,6 @@ export default function Department() {
                     <Text style={styles.buttonText}> Report</Text>
                 </TouchableOpacity>
 
-                {/* <TouchableOpacity style={styles.addButton}>
-          <Icon name="plus" size={20} color="white" />
-        </TouchableOpacity> */}
                 <TouchableOpacity onPress={handleCreate}>
                     <Image
                         style={styles.image}
@@ -52,8 +107,6 @@ export default function Department() {
                     />
                 </TouchableOpacity>
             </View>
-
-
         </View>
     );
 }
@@ -75,7 +128,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     departmentItem: {
-        backgroundColor:SKIN,
+        backgroundColor: SKIN,
         padding: 15,
         borderRadius: 10,
         margin: 18,
@@ -87,8 +140,7 @@ const styles = StyleSheet.create({
     },
     departmentText: {
         fontSize: 18,
-        // fontWeight: 'bold',
-        color: 'black'
+        color: 'black',
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -96,22 +148,12 @@ const styles = StyleSheet.create({
         padding: 20,
         margin: 20
     },
-
     leftReportButton: {
-        backgroundColor:BLUE,
-        flex: 0.25, // Makes the button occupy 45% of the width
+        backgroundColor: BLUE,
+        flex: 0.25,
         alignItems: 'center',
         padding: 10,
         borderRadius: 10,
-    },
-    addButton: {
-        backgroundColor: RED,
-        flex: 0.45, // Makes the button occupy 45% of the width
-        alignItems: 'center',
-        padding: 15,
-        borderRadius: 10,
-        flexDirection: 'row',
-        justifyContent: 'center',
     },
     buttonText: {
         color: 'white',
@@ -122,6 +164,5 @@ const styles = StyleSheet.create({
         width: width(0.1),
         height: height(0.029),
         marginTop: Platform.OS === "android" ? 10 : marginLeftAndRight(0.1),
-
     }
 });

@@ -1,4 +1,4 @@
-package com.tufcon
+package com.anonymous.tufcon
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
