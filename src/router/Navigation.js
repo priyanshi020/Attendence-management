@@ -13,6 +13,7 @@ import Report from '../screens/AdminModule/Report';
 import ViewScreen from '../screens/GuardModule/ViewScreen';
 import CreateCategory from '../screens/AdminModule/CreateCategories';
 import Camera from '../component/Camera';
+import ScanScreen from '../screens/GuardModule/ScanScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ export default function Navigation() {
         <Stack.Screen name='Report' component={Report}/>
         <Stack.Screen name='ViewScreen' component={ViewScreen}/>
         <Stack.Screen name='OpenCamera' component={Camera}/>
+        <Stack.Screen name='ScanScreen' component={ScanScreen}/>
         
       </Stack.Navigator>
     </NavigationContainer>

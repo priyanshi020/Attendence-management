@@ -2,6 +2,7 @@ import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native
 import React from 'react';
 import Navbar from '../components/Navbar';
 import { BLUE, SKIN } from '../../styles/colors';
+import { useNavigation } from '@react-navigation/native';
 
 // Department data with counts
 const departments = [
@@ -13,6 +14,10 @@ const departments = [
 ];
 
 export default function ViewScreen() {
+  const navigation = useNavigation()
+  const handleNavigate=()=>{
+    navigation.navigate('ScanScreen')
+  }
   return (
     <View style={styles.container}>
       <Navbar />
@@ -45,7 +50,7 @@ export default function ViewScreen() {
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>View</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleNavigate}>
           <Text style={styles.buttonText}>In/Out</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
