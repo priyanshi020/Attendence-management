@@ -7,5 +7,5 @@ const IMAGE_PATH='http://localhost:8888/uploads'
 
 
 export default Instance = axios.create({
-    baseURL:'http://192.168.205.149:8888/'
+    baseURL:'http://192.168.250.200:8888/'
 })

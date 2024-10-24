@@ -9,6 +9,7 @@ import {
 import React from 'react';
 import Navbar from '../components/Navbar';
 import {BLUE} from '../../styles/colors';
+import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 
 export default function Report() {
   const generateDatesForCurrentMonth = () => {
@@ -16,9 +17,10 @@ export default function Report() {
     const year = today.getFullYear();
     const month = today.getMonth();
     const dates = [];
-
+    const route = useRoute();
+    const {data}=route.params;
+    console.log('data',data);
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
     for (let day = 1; day <= daysInMonth; day++) {
       const options = {day: 'numeric', month: 'short'}; // Short month formata
       dates.push(
