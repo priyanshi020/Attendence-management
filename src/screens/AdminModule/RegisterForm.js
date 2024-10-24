@@ -21,6 +21,7 @@ export default function RegisterForm() {
   const [userId, setUserId] = useState('');
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
+  const [isValid, setIsValid] = useState(true);
   const [rate, setRate] = useState('');
   const [age, setAge] = useState('');
   const [salary, setSalary] = useState('');
@@ -28,8 +29,8 @@ export default function RegisterForm() {
   const [avatar, setAvatar] = useState(require('../../Images/maleAvatar.jpg'));
   const navigation = useNavigation(); // Hook for navigation
   const route = useRoute();
-  const{departmentId,categoryId}=route.params
-  console.log('==================props',departmentId + categoryId)
+  const{departmentId,categoryId,categroyName}=route.params
+  console.log('==================props',departmentId + categoryId + categroyName)
   useEffect(() => {
     // Fetch total users count on component mount to set user ID
     fetchUserCount();
@@ -49,6 +50,18 @@ export default function RegisterForm() {
     } catch (error) {
       console.error('Error fetching user count:', error);
     }
+  };
+  const validatePhoneNumber = (number) => {
+    const phoneNumberRegex = /^[0-9]{10}$/; // 10-digit phone number validation
+    if (phoneNumberRegex.test(number)) {
+      setIsValid(true); // Valid number
+    } else {
+      setIsValid(false); // Invalid number
+    }
+  };
+  const handleMobileChange = (text) => {
+    setMobile(text);
+    validatePhoneNumber(text); // Validate phone number as user types
   };
 
   const handleAdd = async () => {
@@ -88,7 +101,7 @@ export default function RegisterForm() {
       },
     });
     console.log('User added:', userData);
-    navigation.navigate('EmployeeList',{departmentId:departmentId,categoryId:categoryId});
+    navigation.navigate('EmployeeList',{departmentId:departmentId,categoryId:categoryId,categroyName:categroyName});
   } catch (error) {
     console.error('Error adding user:', error);
   }
@@ -101,7 +114,7 @@ export default function RegisterForm() {
   };
   
   const onImagePress =() =>{
-    navigation.navigate('OpenCamera',{departmentId:departmentId,categoryId:categoryId})
+    navigation.navigate('OpenCamera',{departmentId:departmentId,categoryId:categoryId,categroyName:categroyName})
   }
   const isCapturedImage = avatar.uri ? true : false;
   return (
@@ -129,12 +142,15 @@ export default function RegisterForm() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>MOBILE</Text>
           <TextInput
-            style={styles.input}
-            value={mobile}
-            onChangeText={setMobile}
-            placeholder=""
-            keyboardType="phone-pad"
-          />
+        style={[styles.input, !isValid && styles.invalidInput]}
+        value={mobile}
+        onChangeText={handleMobileChange}
+        
+        keyboardType="phone-pad"
+        maxLength={10} // Limit input to 10 digits
+      />
+      {/* {!isValid && <Text style={styles.errorText}>Invalid phone number. Must be 10 digits.</Text>} */}
+
         </View>
 
         {/* Age */}
@@ -150,7 +166,7 @@ export default function RegisterForm() {
         </View>
 
         {/* Salary */}
-        <View style={styles.inputContainer}>
+        {/* <View style={styles.inputContainer}>
           <Text style={styles.label}>SALARY</Text>
           <TextInput
             style={styles.input}
@@ -159,7 +175,7 @@ export default function RegisterForm() {
             placeholder=""
             keyboardType="phone-pad"
           />
-        </View>
+        </View> */}
 
         {/* Rate */}
         <View style={styles.inputContainer}>
@@ -281,6 +297,9 @@ const styles = StyleSheet.create({
     color: RED,
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  invalidInput: {
+    borderColor: 'red', // Highlight the input in red if invalid
   },
 });
 

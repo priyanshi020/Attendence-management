@@ -27,7 +27,7 @@ export default function Camera() {
   const navigation = useNavigation();
   const cameraRef = useRef(null);
   const route = useRoute();
-  const {departmentId, categoryId} = route.params; // Extract departmentId and categoryId from route params
+  const {departmentId, categoryId,categoryName} = route.params; // Extract departmentId and categoryId from route params
 
   //to load the last saved image when permissions change
   useEffect(() => {
@@ -100,6 +100,7 @@ export default function Camera() {
           capturedImage: picture.uri,
           departmentId: departmentId,
           categoryId: categoryId,
+          categoryName:categoryName
         });
       } catch (err) {
         console.log('Error while taking the picture : ', err);

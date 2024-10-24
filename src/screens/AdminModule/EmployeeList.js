@@ -10,7 +10,7 @@ import {
 import React, {useEffect, useState} from 'react';
 import Navbar from '../components/Navbar';
 import {height, marginLeftAndRight, width} from '../../styles/mixins';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import Instance from '../../ServiceModule/Service'; // Ensure the correct import for your API instance
 import {RED} from '../../styles/colors';
 
@@ -18,53 +18,61 @@ export default function EmployeeList() {
   const navigation = useNavigation();
   const route = useRoute();
   const {departmentId, categoryId, categoryName} = route.params; // Extract departmentId and categoryId from route params
-console.log('-------------------departmenddddd',departmentId + categoryId )
+console.log('-------------------departmenddddd',departmentId + categoryId  + categoryName)
   const [userList, setUserList] = useState([]); // State to hold user data
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
 
-  // Fetch user data based on departmentId and categoryId
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await Instance.get(
-          `users/getAllUsers?departmentId=${departmentId}&categoryId=${categoryId}`,
-        );
-        setUserList(response.data); // Set the user data
-        console.log('Fetched Users:', response.data); // Log the fetched users
-      } catch (error) {
-        setError('Failed to load users'); // Set error message
-        console.error(error);
-      } finally {
-        setLoading(false); // Stop loading
-      }
-    };
+ // Define fetchUsers outside of useFocusEffect so it's accessible globally
+const fetchUsers = React.useCallback(async () => {
+  try {
+    const response = await Instance.get(
+      `users/getAllUsers?departmentId=${departmentId}&categoryId=${categoryId}`,
+    );
+    setUserList(response.data); // Set the user data
+    console.log('Fetched Users:', response.data); // Log the fetched users
+  } catch (error) {
+    setError('Failed to load users'); // Set error message
+    console.error(error);
+  } finally {
+    setLoading(false); // Stop loading
+  }
+}, [departmentId, categoryId]);
 
-    fetchUsers();
-  }, [departmentId, categoryId]); // Dependency array
+useFocusEffect(
+  React.useCallback(() => {
+    fetchUsers(); // Call fetchUsers on component focus
+    return () => {};
+  }, [fetchUsers])
+);
+
+const handleDelete = async id => {
+  console.log('User ID to delete:', id);
+  try {
+    const response = await Instance.post(`users/deleteUser/${id}`);
+    console.log('Delete user response:', response.status + id);
+    if (response.status === 200) {
+      console.log(`User deleted successfully: ${id}`);
+      // Fetch updated user list after successful deletion
+      fetchUsers();
+    } else {
+      console.error('Failed to delete user', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error occurred while deleting user:', error);
+  }
+};
+
 
   const handleCreate = () => {
     navigation.navigate('RegisterScreen', {
       categoryId: categoryId,
+      categoryName:categoryName,
       departmentId: departmentId,
     }); // Navigate to the registration screen
   };
 
-  const handleDelete = async id => {
-    console.log('id kys h vro', id);
-    try {
-      const response = await Instance.post(`users/deleteUser/${id}`);
-      console.log('delete user ki id or respone', response.status + id);
-      if (response.status === 200) {
-        console.log(`User deleted successfully: ${id}`);
-        // Optionally, update UI after successful deletion
-      } else {
-        console.error('Failed to delete user', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error occurred while deleting user:', error);
-    }
-  };
+  
 
   const renderItem = ({item}) => (
     <View style={styles.userItem}>

@@ -5,14 +5,66 @@ import { BLUE, RED } from '../../styles/colors'
 import Department from './Department'
 import { useNavigation } from '@react-navigation/native'
 import { width } from '../../styles/mixins'
-
+import Instance from '../../ServiceModule/Service'
 export default function ViewReport() {
     const [department,setDepartment]=useState('');
     const [category,setCategory]=useState('');
+    const [departmentId, setDepartmentId] = useState('');
+    const [categoryId, setCategoryId] = useState('');
+    const [isLoading, setLoading] = useState(false);
     const navigation=useNavigation()
-    const handleGo=()=>{
-        navigation.navigate('Report')
-    }
+    const fetchIds = async () => {
+      try {
+        // Fetch Department ID
+        // const departmentResponse = await fetch(
+        //   `http://localhost:8888/department/getDepartmentByName?name=${department}`
+        // );
+        const departmentResponse=await Instance.get(`department/getDepartmentByName?departmentName=${department}`)
+        const departmentData = departmentResponse.data
+        setDepartmentId(departmentData._id); // Set the department ID
+  
+        // Fetch Category ID
+        // const categoryResponse = await fetch(
+        //   `http://localhost:8888/getCategoryId?name=${category}`
+        // );
+        const categoryResponse=await Instance.get(`category/getCategorybyname?categoryName=${category}`)
+        const categoryData = categoryResponse.data
+        setCategoryId(categoryData._id); // Set the category ID
+  console.log('vategefefedata',categoryData._id)
+        // If both IDs are successfully fetched, call the getAllUsers API
+        if (departmentData._id && categoryData._id) {
+          fetchUsers(departmentData._id, categoryData._id);
+        }
+      } catch (error) {
+        console.error('Error fetching department/category IDs:', error);
+      }
+    };
+  
+    // Function to call the getAllUsers API with departmentId and categoryId
+    const fetchUsers = async (deptId, catId) => {
+      setLoading(true);
+      console.log('depidand carid',deptId + catId)
+      try {
+        // const response = await fetch(
+        //   `http://localhost:8888/users/getAllUsers?departmentId=${deptId}&categoryId=${catId}`
+        // );
+        const response = await Instance.get(`users/getAllUsers?departmentId=${deptId}&categoryId=${catId}`)
+        const data = response.data;
+        console.log('Fetched Users:', data);
+        navigation.navigate('Report',{data:data}); // Navigate to "Report" on success
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false); // Stop loading when the API call completes
+      }
+    };
+  
+    const handleGo = async () => {
+      if (department && category) {
+        await fetchIds(); // Fetch department and category IDs first
+      }
+    };
+  
   return (
     <View style={styles.container}>
       <Navbar/>
@@ -36,14 +88,23 @@ export default function ViewReport() {
           value={category}
           onChangeText={setCategory}
           placeholder=""
-          keyboardType="phone-pad"
+
         />
       </View>
 
        {/* Login Button */}
-       <TouchableOpacity style={styles.createButton} onPress={handleGo}>
-                <Text style={styles.buttonText}>Go</Text>
-            </TouchableOpacity>
+       <TouchableOpacity
+        style={[
+          styles.createButton,
+          !(department && category) && styles.disabledButton, // Add a disabled style when fields are empty
+        ]}
+        onPress={handleGo}
+        disabled={!(department && category)} // Disable button until both fields are filled
+      >
+        <Text style={styles.buttonText}>Go</Text>
+      </TouchableOpacity>
+
+      {isLoading && <Text>Loading...</Text>}
     </View>
   )
 }
@@ -82,16 +143,17 @@ const styles = StyleSheet.create({
         fontSize:20
       },
       createButton: {
-        position:'absolute',
-        bottom: 205,
-        right: 120,
+        // position:'absolute',
+        // bottom: 205,
+        // right: 120,
+        display:'flex',
         width: width(0.39),
         height: 45,
         backgroundColor: '#FCE5D1', // Red background for login button
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 100,
-        marginBottom: 150,
+        marginTop: 250,
+        marginLeft:70,
         borderWidth: 3, // Black border
         borderColor: '#896471',
 
@@ -101,5 +163,8 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontWeight: 'bold',
 
+    },
+    disabledButton: {
+      backgroundColor: '#ccc', // Disable button color
     },
 })
