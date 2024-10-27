@@ -14,6 +14,9 @@ import ViewScreen from '../screens/GuardModule/ViewScreen';
 import CreateCategory from '../screens/AdminModule/CreateCategories';
 import Camera from '../component/Camera';
 import ScanScreen from '../screens/GuardModule/ScanScreen';
+// import ScanCamera from '../component/ScanCamera';
+import FaceDetect from '../component/FaceDetect';
+import FaceScan from '../component/FaceScan';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,7 +36,8 @@ export default function Navigation() {
         <Stack.Screen name='ViewScreen' component={ViewScreen}/>
         <Stack.Screen name='OpenCamera' component={Camera}/>
         <Stack.Screen name='ScanScreen' component={ScanScreen}/>
-        
+        {/* <Stack.Screen name='FaceDEtect' component={ScanCamera}/> */}
+        <Stack.Screen name='FaceDetect' component={FaceScan}/>
       </Stack.Navigator>
     </NavigationContainer>
   )

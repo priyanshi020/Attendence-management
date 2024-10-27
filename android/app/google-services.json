@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1054270613303",
+    "project_id": "tufcon-c7075",
+    "storage_bucket": "tufcon-c7075.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1054270613303:android:72bda3f6d354f81bb89cb2",
+        "android_client_info": {
+          "package_name": "com.anonymous.tufcon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBT0y09ao0Fy1MW3WGTYf08siGEq_xqv6U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -7,17 +7,14 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {BLUE, RED} from '../../styles/colors';
-import axios from 'axios';
-
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { BLUE, RED } from '../../styles/colors';
 import Instance from '../../ServiceModule/Service';
-import Camera from '../../component/Camera';
+import { IMAGE_PATH } from '../../ServiceModule/Image';
 
 export default function RegisterForm() {
-
   const [userId, setUserId] = useState('');
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
@@ -27,96 +24,113 @@ export default function RegisterForm() {
   const [salary, setSalary] = useState('');
   const [imageUri, setImageUri] = useState(null);
   const [avatar, setAvatar] = useState(require('../../Images/maleAvatar.jpg'));
-  const navigation = useNavigation(); // Hook for navigation
+  const navigation = useNavigation();
   const route = useRoute();
-  const{departmentId,categoryId,categroyName}=route.params
-  console.log('==================props',departmentId + categoryId + categroyName)
+  const { departmentId, categoryId, categroyName } = route.params;
+
   useEffect(() => {
-    // Fetch total users count on component mount to set user ID
     fetchUserCount();
   }, []);
+
   useEffect(() => {
     if (route.params?.capturedImage) {
-      setAvatar({ uri: route.params.capturedImage });
+      setImageUri(route.params.capturedImage); // Capture image URI
+      setAvatar({ uri: route.params.capturedImage }); // Set avatar image
     }
   }, [route.params?.capturedImage]);
 
   const fetchUserCount = async () => {
     try {
-      const response = await Instance.get('users/getAllUsers'); // Replace with actual API
-      const users = response.data; // Assuming the API returns an array of users
-      const userCount = users.length; // Count the number of users in the array
-      setUserId(`CV${String(userCount + 1).padStart(4, '0')}`); // Set user ID by incrementing count
+      const response = await Instance.get('users/getAllUsers');
+      const users = response.data;
+      const userCount = users.length;
+      setUserId(`CV${String(userCount + 1).padStart(4, '0')}`);
     } catch (error) {
       console.error('Error fetching user count:', error);
     }
   };
+
   const validatePhoneNumber = (number) => {
-    const phoneNumberRegex = /^[0-9]{10}$/; // 10-digit phone number validation
-    if (phoneNumberRegex.test(number)) {
-      setIsValid(true); // Valid number
-    } else {
-      setIsValid(false); // Invalid number
-    }
+    const phoneNumberRegex = /^[0-9]{10}$/;
+    setIsValid(phoneNumberRegex.test(number));
   };
+
   const handleMobileChange = (text) => {
     setMobile(text);
-    validatePhoneNumber(text); // Validate phone number as user types
+    validatePhoneNumber(text);
   };
 
   const handleAdd = async () => {
-    const roleId=3;
-    const password='tufcon'
-    console.log('==musky================props',departmentId + categoryId)
-
-  // Prepare user data
-  const userData = new FormData();
-  userData.append('departmentId',departmentId)
-  userData.append('categoryId',categoryId)
-  userData.append('userId', userId);
-  userData.append('name', name);
-  userData.append('mobile', mobile);
-  userData.append('rate', rate);
-  userData.append('age', age);
-  userData.append('salary', salary);
-  userData.append('roleId',roleId)
-  userData.append('password',password)
+    const userData = new FormData();
+    userData.append('departmentId', departmentId);
+    userData.append('categoryId', categoryId);
+    userData.append('userId', userId);
+    userData.append('name', name);
+    userData.append('mobile', mobile);
+    userData.append('rate', rate);
+    userData.append('age', age);
+    userData.append('salary', salary);
+    userData.append('roleId', 3);
+    userData.append('password', 'password');
   
-  // Use the avatar state for image data
-  console.log('image',avatar?.uri)
-  // if (avatar?.uri) {
-  //   userData.append('userImg', {
-  //     uri: avatar.uri,
-  //     type: 'image/jpeg', // Adjust the type according to the image format
-  //     name: 'userImage.jpg', // Provide a name for the file
-  //   });
-  // }
-
-  console.log('----------------->userdata', userData);
+    if (imageUri) {
+      const fileExtension = imageUri.split('.').pop();
+      const fileName = `${userId}.${fileExtension}`;
   
-  try {
-    await Instance.post('users/createUser', userData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    console.log('User added:', userData);
-    navigation.navigate('EmployeeList',{departmentId:departmentId,categoryId:categoryId,categroyName:categroyName});
-  } catch (error) {
-    console.error('Error adding user:', error);
-  }
-};
-
-
-  const handleCancel = () => {
-    console.log('Registration canceled');
-    navigation.goBack(); 
+      // Validate the file extension
+      const validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+      if (!validExtensions.includes(fileExtension)) {
+        console.error('Invalid file extension:', fileExtension);
+        return; // or handle the error accordingly
+      }
+  
+      const imageFile = {
+        uri: imageUri,
+        name: fileName,
+        type: `image/${fileExtension}`,
+      };
+  
+      userData.append('userImg', imageFile);
+      console.log('imageuri', imageUri);
+    }
+  
+    // Log FormData contents
+    for (let i = 0; i < userData._parts.length; i++) {
+      const [key, value] = userData._parts[i];
+      console.log(`${key}:`, value);
+    }
+  
+    try {
+      const response = await Instance.post('users/createUser', userData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('User added:', response.data);
+      navigation.navigate('EmployeeList', { departmentId, categoryId, categroyName });
+    } catch (error) {
+      if (error.response) {
+        console.error('Error adding user:', error.response.data);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error:', error.message);
+      }
+    }
   };
   
-  const onImagePress =() =>{
-    navigation.navigate('OpenCamera',{departmentId:departmentId,categoryId:categoryId,categroyName:categroyName})
-  }
+  
+
+  const handleCancel = () => {
+    navigation.goBack();
+  };
+
+  const onImagePress = () => {
+    navigation.navigate('OpenCamera', { departmentId, categoryId, categroyName });
+  };
+
   const isCapturedImage = avatar.uri ? true : false;
+
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -142,15 +156,12 @@ export default function RegisterForm() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>MOBILE</Text>
           <TextInput
-        style={[styles.input, !isValid && styles.invalidInput]}
-        value={mobile}
-        onChangeText={handleMobileChange}
-        
-        keyboardType="phone-pad"
-        maxLength={10} // Limit input to 10 digits
-      />
-      {/* {!isValid && <Text style={styles.errorText}>Invalid phone number. Must be 10 digits.</Text>} */}
-
+            style={[styles.input, !isValid && styles.invalidInput]}
+            value={mobile}
+            onChangeText={handleMobileChange}
+            keyboardType="phone-pad"
+            maxLength={10}
+          />
         </View>
 
         {/* Age */}
@@ -161,21 +172,9 @@ export default function RegisterForm() {
             value={age}
             onChangeText={setAge}
             placeholder=""
-            keyboardType="phone-pad"
+            keyboardType="numeric"
           />
         </View>
-
-        {/* Salary */}
-        {/* <View style={styles.inputContainer}>
-          <Text style={styles.label}>SALARY</Text>
-          <TextInput
-            style={styles.input}
-            value={salary}
-            onChangeText={setSalary}
-            placeholder=""
-            keyboardType="phone-pad"
-          />
-        </View> */}
 
         {/* Rate */}
         <View style={styles.inputContainer}>
@@ -192,14 +191,11 @@ export default function RegisterForm() {
         {/* Image Capture */}
         <View style={styles.imageContainer}>
           <Text style={styles.label}></Text>
-          <TouchableOpacity style={styles.uploadButton}
-          onPress={onImagePress} >
-                 <Image
-                source={avatar}
-                style={isCapturedImage ? styles.capturedImage : styles.avatar}
-              />
-
-             
+          <TouchableOpacity style={styles.uploadButton} onPress={onImagePress}>
+            <Image
+              source={avatar}
+              style={isCapturedImage ? styles.capturedImage : styles.avatar}
+            />
           </TouchableOpacity>
         </View>
 
@@ -216,6 +212,7 @@ export default function RegisterForm() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -257,17 +254,16 @@ const styles = StyleSheet.create({
     alignItems: 'end',
     backgroundColor: '#fff',
   },
-  capturedImage : {
+  capturedImage: {
     width: 130,
     height: 130,
-    // borderRadius: 75, 
   },
-  avatar:{
+  avatar: {
     width: 120,
     height: 120,
   },
   buttonContainer: {
-    flexDirection: 'row',  
+    flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
   },
@@ -299,7 +295,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   invalidInput: {
-    borderColor: 'red', // Highlight the input in red if invalid
+    borderColor: 'red',
   },
 });
-
