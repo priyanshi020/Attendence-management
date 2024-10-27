@@ -9,7 +9,11 @@ import {
 } from 'react-native';
 import React, {useState, useEffect, useRef} from 'react';
 import Navbar from '../components/Navbar';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {
+  useNavigation,
+  useRoute,
+  validatePathConfig,
+} from '@react-navigation/native';
 import {BLUE, RED} from '../../styles/colors';
 import axios from 'axios';
 
@@ -17,7 +21,6 @@ import Instance from '../../ServiceModule/Service';
 import Camera from '../../component/Camera';
 
 export default function RegisterForm() {
-
   const [userId, setUserId] = useState('');
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
@@ -27,17 +30,16 @@ export default function RegisterForm() {
   const [salary, setSalary] = useState('');
   const [imageUri, setImageUri] = useState(null);
   const [avatar, setAvatar] = useState(require('../../Images/maleAvatar.jpg'));
-  const navigation = useNavigation(); // Hook for navigation
+  const navigation = useNavigation();
   const route = useRoute();
-  const{departmentId,categoryId,categroyName}=route.params
-  console.log('==================props',departmentId + categoryId + categroyName)
+  const {departmentId, categoryId, categroyName} = route?.params;
   useEffect(() => {
     // Fetch total users count on component mount to set user ID
     fetchUserCount();
   }, []);
   useEffect(() => {
     if (route.params?.capturedImage) {
-      setAvatar({ uri: route.params.capturedImage });
+      setAvatar({uri: route.params.capturedImage});
     }
   }, [route.params?.capturedImage]);
 
@@ -51,7 +53,7 @@ export default function RegisterForm() {
       console.error('Error fetching user count:', error);
     }
   };
-  const validatePhoneNumber = (number) => {
+  const validatePhoneNumber = number => {
     const phoneNumberRegex = /^[0-9]{10}$/; // 10-digit phone number validation
     if (phoneNumberRegex.test(number)) {
       setIsValid(true); // Valid number
@@ -59,63 +61,119 @@ export default function RegisterForm() {
       setIsValid(false); // Invalid number
     }
   };
-  const handleMobileChange = (text) => {
+  const handleMobileChange = text => {
     setMobile(text);
     validatePhoneNumber(text); // Validate phone number as user types
   };
 
   const handleAdd = async () => {
-    const roleId=3;
-    const password='tufcon'
-    console.log('==musky================props',departmentId + categoryId)
+    const roleId = 3;
+    const password = 'tufcon';
+    const capturedImageUri = route.params?.capturedImage.startsWith('file://')
+      ? route.params?.capturedImage
+      : `file://${route.params?.capturedImage}`;
 
-  // Prepare user data
-  const userData = new FormData();
-  userData.append('departmentId',departmentId)
-  userData.append('categoryId',categoryId)
-  userData.append('userId', userId);
-  userData.append('name', name);
-  userData.append('mobile', mobile);
-  userData.append('rate', rate);
-  userData.append('age', age);
-  userData.append('salary', salary);
-  userData.append('roleId',roleId)
-  userData.append('password',password)
-  
-  // Use the avatar state for image data
-  console.log('image',avatar?.uri)
-  // if (avatar?.uri) {
-  //   userData.append('userImg', {
-  //     uri: avatar.uri,
-  //     type: 'image/jpeg', // Adjust the type according to the image format
-  //     name: 'userImage.jpg', // Provide a name for the file
-  //   });
-  // }
+    if (!capturedImageUri) {
+      console.error('No image captured');
+      return;
+    }
 
-  console.log('----------------->userdata', userData);
-  
-  try {
-    await Instance.post('users/createUser', userData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    const userData = new FormData();
+    userData.append('departmentId', departmentId);
+    userData.append('categoryId', categoryId);
+    userData.append('userId', userId);
+    userData.append('name', name);
+    userData.append('mobile', mobile);
+    userData.append('rate', rate);
+    userData.append('age', age);
+    userData.append('salary', salary);
+    userData.append('roleId', roleId);
+    userData.append('password', password);
+
+    const filename = capturedImageUri.split('/').pop();
+    const type = `image/${filename.split('.').pop()}`;
+    userData.append('userImg', {
+      uri: capturedImageUri,
+      name: filename,
+      type,
     });
-    console.log('User added:', userData);
-    navigation.navigate('EmployeeList',{departmentId:departmentId,categoryId:categoryId,categroyName:categroyName});
-  } catch (error) {
-    console.error('Error adding user:', error);
-  }
-};
+  
+    try {
+      await Instance.post('users/createUser', userData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      navigation.navigate('EmployeeList', {
+        departmentId,
+        categoryId,
+        categroyName,
+      });
+    } catch (error) {
 
+      console.error('Error adding user:', error, userData);
+    }
+
+
+
+  };
+
+  
+
+  // const handleAdd = async () => {
+  //   const roleId = 3;
+  //   const password = 'tufcon';
+  //   const capturedImageUri = route.params?.capturedImage; // from camera screen
+  //   if (!capturedImageUri) {
+  //     console.error('No image captured');
+  //     return;
+  //   }
+
+  //   // Prepare user data
+  //   const userData = new FormData();
+  //   userData.append('departmentId', departmentId);
+  //   userData.append('categoryId', categoryId);
+  //   userData.append('userId', userId);
+  //   userData.append('name', name);
+  //   userData.append('mobile', mobile);
+  //   userData.append('rate', rate);
+  //   userData.append('age', age);
+  //   userData.append('salary', salary);
+  //   userData.append('roleId', roleId);
+  //   userData.append('password', password);
+  //   let filename = capturedImageUri.split('/').pop();
+  //   let type = `image/${filename.split('.').pop()}`;
+  //   userData.append('userImg', { uri: capturedImageUri, name: filename, type });
+
+  //   try {
+  //     await Instance.post('users/createUser', userData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //       },
+  //     });
+  //     console.log('User added:', userData);
+  //     navigation.navigate('EmployeeList', {
+  //       departmentId: departmentId,
+  //       categoryId: categoryId,
+  //       categroyName: categroyName,
+  //     });
+  //   } catch (error) {
+  //     console.error('Error adding user:', error);
+  //   }
+  // };
 
   const handleCancel = () => {
     console.log('Registration canceled');
-    navigation.goBack(); 
+    navigation.goBack();
   };
-  
-  const onImagePress =() =>{
-    navigation.navigate('OpenCamera',{departmentId:departmentId,categoryId:categoryId,categroyName:categroyName})
-  }
+
+  const onImagePress = () => {
+    navigation.navigate('OpenCamera', {
+      departmentId: departmentId,
+      categoryId: categoryId,
+      categroyName: categroyName,
+    });
+  };
   const isCapturedImage = avatar.uri ? true : false;
   return (
     <View style={styles.container}>
@@ -142,15 +200,13 @@ export default function RegisterForm() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>MOBILE</Text>
           <TextInput
-        style={[styles.input, !isValid && styles.invalidInput]}
-        value={mobile}
-        onChangeText={handleMobileChange}
-        
-        keyboardType="phone-pad"
-        maxLength={10} // Limit input to 10 digits
-      />
-      {/* {!isValid && <Text style={styles.errorText}>Invalid phone number. Must be 10 digits.</Text>} */}
-
+            style={[styles.input, !isValid && styles.invalidInput]}
+            value={mobile}
+            onChangeText={handleMobileChange}
+            keyboardType="phone-pad"
+            maxLength={10}
+          />
+          {/* {!isValid && <Text style={styles.errorText}>Invalid phone number. Must be 10 digits.</Text>} */}
         </View>
 
         {/* Age */}
@@ -192,14 +248,11 @@ export default function RegisterForm() {
         {/* Image Capture */}
         <View style={styles.imageContainer}>
           <Text style={styles.label}></Text>
-          <TouchableOpacity style={styles.uploadButton}
-          onPress={onImagePress} >
-                 <Image
-                source={avatar}
-                style={isCapturedImage ? styles.capturedImage : styles.avatar}
-              />
-
-             
+          <TouchableOpacity style={styles.uploadButton} onPress={onImagePress}>
+            <Image
+              source={avatar}
+              style={isCapturedImage ? styles.capturedImage : styles.avatar}
+            />
           </TouchableOpacity>
         </View>
 
@@ -257,17 +310,17 @@ const styles = StyleSheet.create({
     alignItems: 'end',
     backgroundColor: '#fff',
   },
-  capturedImage : {
+  capturedImage: {
     width: 130,
     height: 130,
-    // borderRadius: 75, 
+    // borderRadius: 75,
   },
-  avatar:{
+  avatar: {
     width: 120,
     height: 120,
   },
   buttonContainer: {
-    flexDirection: 'row',  
+    flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
   },
@@ -302,4 +355,3 @@ const styles = StyleSheet.create({
     borderColor: 'red', // Highlight the input in red if invalid
   },
 });
-

@@ -15,22 +15,22 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    console.log("sssssssssssss")
     // navigation.navigate('RegisterScreen')
-
-
-    console.log('this is usrID : ', userId, password)
     if (!userId || !password) {
       Alert.alert('Error', 'Please enter both User ID and Password');
       setLoading(false);
+      console.log('helo1', )
       return;
     }
 
     try {
-      console.log('helo')
+      console.log('hello--->')
       const response = await Instance.post('users/login', {
         email: userId,
         password: password,
       })
+      console.log('helo', response)
 
       if (response.status === 200) {
         if (response.data.user.roleId === 1) {
@@ -42,12 +42,14 @@ export default function Home() {
         Alert.alert('Login Failed', response.data.message || 'Invalid User ID or Password');
       }
     } catch (error) {
+      console.log('helo33')
       if (error.response) {
         Alert.alert('Login Failed', error.response.data.message || 'Invalid User ID or Password');
       } else {
         Alert.alert('Error', 'Something went wrong. Please try again later.');
       }
     } finally {
+      console.log('finally')
       setLoading(false); 
     }
   };
