@@ -28,7 +28,7 @@ export default function Camera() {
   const cameraRef = useRef(null);
   const route = useRoute();
   const {departmentId, categoryId,categoryName} = route.params; 
-
+  console.log('agyaaaaaaaa')
   //to load the last saved image when permissions change
   useEffect(() => {
     if (

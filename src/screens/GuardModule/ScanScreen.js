@@ -3,21 +3,29 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import { BLUE } from '../../styles/colors';
 import Camera from '../../component/Camera';
+import { useNavigation } from '@react-navigation/native';
+import FaceScan from '../../component/FaceScan';
 
 const ScanScreen = () => {
+    const navigation = useNavigation()
+    const handleScan = () =>{
+        // navigation.navigate('FaceDetect')
+        console.log('sunnoooo')
+    }
   return (
     <View style={styles.container}>
       <Navbar />
       <Text style={styles.heading}>SCAN ANY FACE</Text>
 
     {/* Scan camera */}
+    <FaceScan/>
     
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>View</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleScan}>
           <Text style={styles.buttonText}>In/Out</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
