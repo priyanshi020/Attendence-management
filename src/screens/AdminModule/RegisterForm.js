@@ -13,6 +13,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { BLUE, RED } from '../../styles/colors';
 import Instance from '../../ServiceModule/Service';
 import { IMAGE_PATH } from '../../ServiceModule/Image';
+import Logout from '../components/Logout';
 
 export default function RegisterForm() {
   const [userId, setUserId] = useState('');
@@ -134,7 +135,8 @@ export default function RegisterForm() {
   return (
     <View style={styles.container}>
       <ScrollView>
-        <Navbar />
+        {/* <Navbar /> */}
+        <Logout/>
         {/* User ID */}
         <View style={styles.inputContainer}>
           <Text style={styles.label}>USER ID</Text>

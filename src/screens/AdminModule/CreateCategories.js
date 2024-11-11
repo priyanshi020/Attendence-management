@@ -6,6 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { PURPLE, RED, SKIN } from '../../styles/colors';
 import axios from 'axios';
 import Instance from '../../ServiceModule/Service';
+import Logout from '../components/Logout';
 
 export default function CreateCategory() {
     const [categoryName, setCategoryName] = useState(''); // State for category name
@@ -42,7 +43,8 @@ export default function CreateCategory() {
 
     return (
         <View style={styles.container}>
-            <Navbar />
+            {/* <Navbar /> */}
+            <Logout/>
 
             {/* Input Field Section */}
             <View style={styles.inputContainer}>

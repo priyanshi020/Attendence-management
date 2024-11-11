@@ -10,6 +10,7 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import {BLUE} from '../../styles/colors';
 import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import Logout from '../components/Logout';
 
 export default function Report() {
   const generateDatesForCurrentMonth = () => {
@@ -36,7 +37,8 @@ export default function Report() {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Navbar />
+        {/* <Navbar /> */}
+        <Logout/>
 
         {/* Heading with Print Icon */}
         <View style={styles.headingContainer}>

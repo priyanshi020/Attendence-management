@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import { BLUE } from '../../styles/colors';
 import FaceScan from '../../component/FaceScan';
+import Logout from '../components/Logout';
 
 const ScanScreen = () => {
   const [isCaptureTriggered, setIsCaptureTriggered] = useState(false);
@@ -16,7 +17,8 @@ const ScanScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Navbar />
+      {/* <Navbar /> */}
+      <Logout/>
       <Text style={styles.heading}>SCAN ANY FACE</Text>
 
       {/* Scan camera */}

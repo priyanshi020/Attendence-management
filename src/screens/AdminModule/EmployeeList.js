@@ -13,6 +13,7 @@ import {height, marginLeftAndRight, width} from '../../styles/mixins';
 import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import Instance from '../../ServiceModule/Service'; // Ensure the correct import for your API instance
 import {RED} from '../../styles/colors';
+import Logout from '../components/Logout';
 
 export default function EmployeeList() {
   const navigation = useNavigation();
@@ -105,7 +106,8 @@ const handleDelete = async id => {
 
   return (
     <View>
-      <Navbar />
+      {/* <Navbar /> */}
+      <Logout/>
       <View style={styles.container1}>
         {/* Create Button */}
         <TouchableOpacity style={styles.createButton} >

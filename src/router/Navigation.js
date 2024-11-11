@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from '../screens/Home';
@@ -17,13 +17,31 @@ import ScanScreen from '../screens/GuardModule/ScanScreen';
 // import ScanCamera from '../component/ScanCamera';
 import FaceDetect from '../component/FaceDetect';
 import FaceScan from '../component/FaceScan';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createNativeStackNavigator();
 
 export default function Navigation() {
+  const [initialRoute, setInitialRoute] = useState('Home');
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const role = await AsyncStorage.getItem('userRole');
+        if (role === '1') {
+          setInitialRoute('Department');
+        } else if (role === '2') {
+          setInitialRoute('ViewScreen');
+        }
+      } catch (error) {
+        console.error('Failed to load role from storage');
+      }
+    };
+    checkLoginStatus();
+  }, []);
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='Home' screenOptions={{headerShown:false}}>
+      <Stack.Navigator initialRouteName={initialRoute} screenOptions={{headerShown:false}}>
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Department" component={Department}/>
         <Stack.Screen name='CreateDepartment' component={CreateDepartment}/>
