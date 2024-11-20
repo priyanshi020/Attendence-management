@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { PURPLE, RED, SKIN } from '../../styles/colors';
 import axios from 'axios';
 import Instance from '../../ServiceModule/Service'
+import Logout from '../components/Logout';
 export default function CreateDepartment() {
     const [departmentName, setDepartmentName] = useState(''); // State for department name
     const [loading, setLoading] = useState(false); // Loading state
@@ -38,7 +39,8 @@ export default function CreateDepartment() {
 
     return (
         <View style={styles.container}>
-            <Navbar />
+            <Logout/>
+            {/* <Navbar /> */}
 
             {/* Input Field Section */}
             <View style={styles.inputContainer}>

@@ -6,6 +6,7 @@ import Department from './Department'
 import { useNavigation } from '@react-navigation/native'
 import { width } from '../../styles/mixins'
 import Instance from '../../ServiceModule/Service'
+import Logout from '../components/Logout'
 export default function ViewReport() {
     const [department,setDepartment]=useState('');
     const [category,setCategory]=useState('');
@@ -67,7 +68,8 @@ export default function ViewReport() {
   
   return (
     <View style={styles.container}>
-      <Navbar/>
+      {/* <Navbar/> */}
+      <Logout/>
       <Text style={styles.heading}>REPORT</Text>
        {/* Name */}
        <View style={styles.inputContainer}>

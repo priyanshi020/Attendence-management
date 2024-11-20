@@ -5,7 +5,7 @@ import Navbar from './components/Navbar';
 import { PINK, RED } from '../styles/colors';
 import { height, marginLeftAndRight, width } from '../styles/mixins';
 import Instance from '../ServiceModule/Service'
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function Home() {
   const navigation = useNavigation();
 
@@ -33,14 +33,25 @@ export default function Home() {
       console.log('helo', response)
 
       if (response.status === 200) {
-        if (response.data.user.roleId === 1) {
-          navigation.navigate('Department');
-        } else if (response.data.user.roleId === 2) {
-          navigation.navigate('ViewScreen')
-        }
-      } else {
-        Alert.alert('Login Failed', response.data.message || 'Invalid User ID or Password');
+      //   if (response.data.user.roleId === 1) {
+      //     navigation.navigate('Department');
+      //   } else if (response.data.user.roleId === 2) {
+      //     navigation.navigate('ViewScreen')
+      //   }
+      // } else {
+      //   Alert.alert('Login Failed', response.data.message || 'Invalid User ID or Password');
+      // }
+      const userRole = response.data.user.roleId;
+      await AsyncStorage.setItem('userRole', userRole.toString());
+
+      if (userRole === 1) {
+        navigation.reset({ index: 0, routes: [{ name: 'Department' }] });
+      } else if (userRole === 2) {
+        navigation.reset({ index: 0, routes: [{ name: 'ViewScreen' }] });
       }
+    } else {
+      Alert.alert('Login Failed', response.data.message || 'Invalid User ID or Password');
+    }
     } catch (error) {
       console.log('helo33')
       if (error.response) {

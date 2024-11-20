@@ -3,6 +3,7 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import { BLUE, SKIN } from '../../styles/colors';
 import { useNavigation } from '@react-navigation/native';
+import Logout from '../components/Logout';
 
 // Department data with counts
 const departments = [
@@ -20,7 +21,8 @@ export default function ViewScreen() {
   }
   return (
     <View style={styles.container}>
-      <Navbar />
+      {/* <Navbar /> */}
+      <Logout/>
 
       {/* Status and Date */}
       <View style={styles.statusDateContainer}>

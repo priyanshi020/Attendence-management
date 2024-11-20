@@ -5,6 +5,7 @@ import { height, marginLeftAndRight, width } from '../../styles/mixins';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Instance from '../../ServiceModule/Service'; // Ensure you have the correct import for your API instance
 import { useFocusEffect } from '@react-navigation/native';
+import Logout from '../components/Logout';
 
 export default function Categories() {
     const [categories, setCategories] = useState([]); // State to hold categories
@@ -80,7 +81,8 @@ export default function Categories() {
 
     return (
         <View style={styles.container}>
-            <Navbar />
+            {/* <Navbar /> */}
+            <Logout/>
             <View style={styles.listContainer}>
                 <Text style={styles.text}>{departmentName}</Text>
                 <FlatList

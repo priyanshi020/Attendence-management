@@ -1,46 +1,33 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Button,
-  Image,
-  Text,
-  Alert,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import {CameraView, useCameraPermissions} from 'expo-camera';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Alert, StyleSheet, ActivityIndicator } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import axios from 'axios';
 import * as MediaLibrary from 'expo-media-library';
-import * as ImageManipulator from 'expo-image-manipulator';
 import Instance from '../ServiceModule/Service';
-import {IMAGE_PATH} from '../ServiceModule/Image'
-const FaceScan = () => {
-    console.log('image ka path',IMAGE_PATH)
+import { Ionicons } from '@expo/vector-icons';  // Make sure to install this package
+
+const FaceScan = ({ triggerCapture,actionType  }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [cameraRef, setCameraRef] = useState(null);
-  const [imageUri, setImageUri] = useState(null);
   const [attendanceData, setAttendanceData] = useState(null);
+  const [loading, setLoading] = useState(false); // Loader state
+  const [success, setSuccess] = useState(false); // Success checkmark state
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  const [mediaLibraryPermissionResponse, requestMediaLibraryPermission] =
-    MediaLibrary.usePermissions();
-  const [cameraProps, setCameraProps] = useState({
-    zoom: 0,
-    facing: 'front',
-    flash: 'on',
-    animateShutter: false,
-    enableTorch: false,
-  });
+  const [mediaLibraryPermissionResponse, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
 
   useEffect(() => {
-    if (
-      cameraPermission?.granted &&
-      mediaLibraryPermissionResponse?.status === 'granted'
-    ) {
+    if (cameraPermission?.granted && mediaLibraryPermissionResponse?.status === 'granted') {
       setHasPermission(true);
     } else if (cameraPermission && mediaLibraryPermissionResponse) {
       setHasPermission(false);
     }
   }, [cameraPermission, mediaLibraryPermissionResponse]);
+
+  useEffect(() => {
+    if (triggerCapture) {
+      captureImage();
+    }
+  }, [triggerCapture]);
 
   if (!cameraPermission || !mediaLibraryPermissionResponse) {
     return (
@@ -50,10 +37,7 @@ const FaceScan = () => {
     );
   }
 
-  if (
-    !cameraPermission.granted ||
-    mediaLibraryPermissionResponse.status !== 'granted'
-  ) {
+  if (!cameraPermission.granted || mediaLibraryPermissionResponse.status !== 'granted') {
     return (
       <View style={styles.container}>
         <Text>We need camera and gallery permissions to continue.</Text>
@@ -62,7 +46,8 @@ const FaceScan = () => {
           onPress={() => {
             requestCameraPermission();
             requestMediaLibraryPermission();
-          }}>
+          }}
+        >
           <Text style={styles.buttonText}>Grant Permissions</Text>
         </TouchableOpacity>
       </View>
@@ -70,49 +55,45 @@ const FaceScan = () => {
   }
 
   const captureImage = async () => {
-    console.log('hello image capture hogi');
     if (cameraRef) {
-      const photo = await cameraRef.takePictureAsync({base64: true});
-      console.log('to khich meri photo');
-      setImageUri(photo.uri);
-      checkFaceRecognition(photo.uri);
+      const photo = await cameraRef.takePictureAsync({ base64: true });
+      checkFaceRecognition(photo.uri,actionType);
     }
   };
 
-  const compressAndConvertImage = async uri => {
-    console.log('convert plzzz');
-    try {
-      // Resize the image to a smaller resolution
-      const resizedImage = await ImageManipulator.manipulateAsync(
-        uri,
-        [{resize: {width: 150, height: 150}}],
-        {compress: 0.7, format: ImageManipulator.SaveFormat.JPEG},
-      );
-      console.log('hello hello resize image');
-      return resizedImage.base64;
-    } catch (error) {
-      console.error('Error compressing image:', error);
-      Alert.alert('Error', 'Image compression failed.');
-      return null;
-    }
-  };
+  const checkFaceRecognition = async (uri,action) => {
+    if (!uri) return;
 
-  const checkFaceRecognition = async uri => {
-    console.log('uri mili kya', uri);
-    // const compressedImage = await compressAndConvertImage(uri);
-    const compressedImage = IMAGE_PATH + uri;
-    console.log('imge compress hui kya', compressedImage);
-    if (!compressedImage) return;
+    setLoading(true); // Start loader
+    setSuccess(false); // Reset success state
 
     try {
-        console.log('in try')
-      const response = await Instance.post('scanning/attendance/mark', {
-        scannedImageUrl: compressedImage,
-        action: 'in',
+      const formData = new FormData();
+      const fileExtension = uri.split('.').pop();
+      const fileName = `scannedImage.${fileExtension}`;
+  
+      const validExtensions = ['jpg', 'jpeg', 'png'];
+      if (!validExtensions.includes(fileExtension)) {
+        console.error('Invalid file extension:', fileExtension);
+        setLoading(false);
+        return;
+      }
+  
+      formData.append('scannedImage', {
+        uri: uri,
+        name: fileName,
+        type: `image/${fileExtension}`,
       });
-      console.log('there is something in resonse',response.data)
-
+      formData.append('action', action);
+  
+      const response = await Instance.post('scanning/attendance/mark', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
       if (response.data.isPresent) {
+        setSuccess(true); // Show success checkmark
         Alert.alert('Attendance marked!', 'User is present.');
       } else {
         Alert.alert('Attendance not marked', 'User is not recognized.');
@@ -122,23 +103,26 @@ const FaceScan = () => {
     } catch (error) {
       console.error('Error checking attendance:', error);
       Alert.alert('Error', 'There was an error checking attendance.');
+    } finally {
+      setLoading(false); // Stop loader after API call
     }
   };
 
   return (
     <View style={styles.container}>
-      <CameraView
-        style={styles.camera}
-        facing={cameraProps.facing}
-        ref={ref => setCameraRef(ref)}
-      />
-      <View style={styles.buttonContainer}>
-        <Button title="Capture" onPress={captureImage} />
+      <CameraView style={styles.camera} facing="front" ref={ref => setCameraRef(ref)} />
+
+      {/* Loader and Success Checkmark displayed below the camera */}
+      <View style={styles.statusContainer}>
+        {loading && <ActivityIndicator size="large" color="#0000ff" />}
+        {success && (
+          <Ionicons
+            name="checkmark-circle"
+            size={60}
+            color="green"
+          />
+        )}
       </View>
-      {imageUri && <Image source={{uri: imageUri}} style={styles.image} />}
-      {attendanceData && (
-        <Text>Attendance Data: {JSON.stringify(attendanceData)}</Text>
-      )}
     </View>
   );
 };
@@ -146,30 +130,16 @@ const FaceScan = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: 'center',
   },
   camera: {
     width: '100%',
     aspectRatio: 1,
     marginBottom: 20,
   },
-  buttonContainer: {
-    flex: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    padding: 10,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  image: {
-    width: 200,
-    height: 200,
-    margin: 10,
+  statusContainer: {
+    alignItems: 'center',
+    marginTop: 10,
   },
 });
 

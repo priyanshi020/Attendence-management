@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { BLUE, PURPLE, RED, SKIN } from '../../styles/colors';
 import Instance from '../../ServiceModule/Service'
 import { useFocusEffect } from '@react-navigation/native';
+import Logout from '../components/Logout';
 export default function Department() {
     const [departments, setDepartments] = useState([]); // State for storing departments
     const [loading, setLoading] = useState(true); // Loading state
@@ -77,7 +78,8 @@ export default function Department() {
 
     return (
         <View style={styles.container}>
-            <Navbar />
+            <Logout/>
+            {/* <Navbar /> */}
             <View style={styles.listContainer}>
                 <Text style={styles.text}>DEPARTMENT</Text>
                 <FlatList
